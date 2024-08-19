@@ -1,0 +1,6 @@
+(include_subdirs qualified)
+
+(library
+ (name ofetch)
+ (ocamlopt_flags (:standard -O2))
+ (libraries str ctypes ctypes-foreign))

@@ -1,0 +1,23 @@
+module Cursor = Cursor
+module Style = Style
+
+let csi = "\x1b["
+let clear_screen_to_end = csi ^ "0J"
+let clear_screen_to_start = csi ^ "1J"
+let clear_screen = csi ^ "2J"
+let clear_buffer = csi ^ "3J"
+let clear_line_to_end = csi ^ "0K"
+let clear_line_to_start = csi ^ "1K"
+let clear_line = csi ^ "2K"
+let scroll_up n = csi ^ string_of_int n ^ "S"
+let scroll_down n = csi ^ string_of_int n ^ "T"
+let scroll n = if n < 0 then scroll_up (-n) else scroll_down n
+let aux_port_on = csi ^ "4i"
+let aux_port_off = csi ^ "5i"
+let device_status_report = csi ^ "6n"
+let report_focus_on = csi ^ "?1004h"
+let report_focus_off = csi ^ "?1004l"
+let alternative_buffer_on = csi ^ "?1049h"
+let alternative_buffer_off = csi ^ "?1049l"
+let bracketed_paste_mode_on = csi ^ "?2004h"
+let bracketed_paste_mode_off = csi ^ "?2004l"

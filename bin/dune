@@ -1,0 +1,5 @@
+(executable
+ (public_name ofetch)
+ (name main)
+ (ocamlopt_flags (:standard -O2))
+ (libraries ofetch cstruct))
