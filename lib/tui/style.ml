@@ -1,7 +1,7 @@
 type alignment_horizontal = Left | Center | Right
 type alignment_vertical = Top | Middle | Bottom
 type rgb = { red : int; green : int; blue : int }
-type color = Rgb of rgb
+type color = Rgb of rgb | StripesHorizontal of color list
 
 type style = {
   fg : color option;

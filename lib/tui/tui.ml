@@ -114,6 +114,29 @@ let get_style element =
   | Table { style; _ } -> style
   | _ -> None
 
+let rec to_rgb index count color =
+  Option.bind color (fun color ->
+      match color with
+      | Style.Rgb { red; green; blue } ->
+          let color : Style.rgb = { red; green; blue } in
+          Some color
+      | Style.StripesHorizontal stripes ->
+          let length = List.length stripes in
+          length * index / count
+          |> min (length - 1)
+          |> List.nth_opt stripes
+          |> to_rgb index count)
+
+let fg_rgb index count fg =
+  match to_rgb index count fg with
+  | None -> ""
+  | Some { red; green; blue } -> Ansi.Style.fg_rgb red green blue
+
+let bg_rgb index count fg =
+  match to_rgb index count fg with
+  | None -> ""
+  | Some { red; green; blue } -> Ansi.Style.bg_rgb red green blue
+
 let rec render element =
   match element with
   | Text { lines; style } -> (
@@ -126,18 +149,14 @@ let rec render element =
       match style with
       | None -> lines_rect
       | Some { fg; bg; _ } ->
-          let prefix =
-            (match fg with
-            | None -> ""
-            | Some (Rgb { red; green; blue }) ->
-                Ansi.Style.fg_rgb red green blue)
-            ^
-            match bg with
-            | None -> ""
-            | Some (Rgb { red; green; blue }) ->
-                Ansi.Style.bg_rgb red green blue
-          in
-          List.map (fun line -> prefix ^ line ^ Ansi.Style.reset) lines_rect)
+          let count = List.length lines in
+          List.mapi
+            (fun index line ->
+              fg_rgb index count fg
+              ^ bg_rgb index count bg
+              ^ line
+              ^ Ansi.Style.reset)
+            lines_rect)
   | Row { items; _ } ->
       concat_horizontally (List.map render items)
         (List.map (fun item -> (calculate_size item).width) items)
