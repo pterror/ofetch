@@ -13,12 +13,12 @@ type t = {
 type utsname_t
 
 let utsname_t : utsname_t structure typ = structure "utsname"
-let sysname = field utsname_t "sysname" (array 65 (const char))
-let nodename = field utsname_t "nodename" (array 65 (const char))
-let release = field utsname_t "release" (array 65 (const char))
-let version = field utsname_t "version" (array 65 (const char))
-let machine = field utsname_t "machine" (array 65 (const char))
-let domainname = field utsname_t "domainname" (array 65 (const char))
+let sysname = field utsname_t "sysname" (array 65 char)
+let nodename = field utsname_t "nodename" (array 65 char)
+let release = field utsname_t "release" (array 65 char)
+let version = field utsname_t "version" (array 65 char)
+let machine = field utsname_t "machine" (array 65 char)
+let domainname = field utsname_t "domainname" (array 65 char)
 let () = seal utsname_t
 let coerce_to_string p = p |> CArray.start |> coerce (ptr char) string
 

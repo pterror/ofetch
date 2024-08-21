@@ -11,7 +11,7 @@ doc: "https://github.com/pterror/ofetch"
 bug-reports: "https://github.com/pterror/ofetch/issues"
 depends: [
   "ocaml"
-  "dune" {>= "3.16"}
+  "dune" {>= "3.12"}
   "ctypes"
   "ctypes-foreign"
   "odoc" {with-doc}
