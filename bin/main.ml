@@ -11,8 +11,8 @@ let bright_blue = Rgb (rgb 196 255 255)
 let info_row heading info =
   table_row
     [
-      text ~style:(style ~fg:bright_blue ~align_h:Right ()) (heading ^ ":");
-      text info;
+      text ~style:(style ~fg:bright_blue ~align_h:Right ()) [ heading ^ ":" ];
+      text [ info ];
     ]
 
 let () =
@@ -37,5 +37,6 @@ let () =
          ]
        else [])
     @ [ info_row "Processes" (string_of_int sysinfo.processes) ])
+  |> (fun x -> row [ text [ "aaaaa"; "bbb"; "c"; "dd"; "eeee" ]; x ])
   |> Tui.render
-  |> print_endline
+  |> List.iter print_endline

@@ -1,16 +1,15 @@
 type element = ..
-type text = { text : string; style : Style.style option }
+type text = { lines : string list; style : Style.style option }
 type element += Text of text
 type row = { items : element list; style : Style.style option }
 type element += Row of row
 type column = { items : element list; style : Style.style option }
 type element += Column of column
 type table_row = { items : element list; style : Style.style option }
-type element += TableRow of table_row
 type table = { rows : table_row list; style : Style.style option }
 type element += Table of table
 
-let text ?style text = Text { text; style }
+let text ?style lines = Text { lines; style }
 let row ?style items = Row { items; style }
 let column ?style items = Column { items; style }
 
