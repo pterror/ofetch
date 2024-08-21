@@ -6,13 +6,12 @@ let uname = Linux.Uname.uname ()
 let sysinfo = Linux.Sysinfo.sysinfo ()
 let meminfo = Linux.Proc.Meminfo.read_meminfo ()
 let os_release = Linux.Etc.Os_release.os_release ()
-
 let bright_blue = Rgb (rgb 196 255 255)
 
 let info_row heading info =
   table_row
     [
-      text ~style:(style ~fg:bright_blue ()) (heading ^ ":");
+      text ~style:(style ~fg:bright_blue ~align_h:Right ()) (heading ^ ":");
       text info;
     ]
 
