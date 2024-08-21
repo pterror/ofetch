@@ -7,44 +7,36 @@ let sysinfo = Linux.Sysinfo.sysinfo ()
 let meminfo = Linux.Proc.Meminfo.read_meminfo ()
 let os_release = Linux.Etc.Os_release.os_release ()
 
-let print_section header contents =
-  print_string
-    (Ansi.Style.fg_bright_blue
-    ^ header
-    ^ ":"
-    ^ Ansi.Style.fg_default
-    ^ " "
-    ^ contents
-    ^ "\n")
+let bright_blue = Rgb (rgb 196 255 255)
 
-let element =
-  table
+let info_row heading info =
+  table_row
     [
-      table_row
-        [
-          text ~style:(style ~fg:(Rgb (rgb 196 255 255)) ()) "testing!";
-          text ~style:(style ~fg:(Rgb (rgb 255 196 255)) ()) "testing! 2";
-        ];
-      table_row
-        [
-          text ~style:(style ~fg:(Rgb (rgb 196 255 255)) ()) "t3";
-          text ~style:(style ~fg:(Rgb (rgb 255 196 255)) ()) "t4";
-        ];
+      text ~style:(style ~fg:bright_blue ()) (heading ^ ":");
+      text info;
     ]
 
 let () =
-  print_endline (Tui.render element);
-  print_section "OS" os_release.pretty_name;
-  print_section "Arch" uname.machine;
-  print_section "Kernel" uname.release;
-  print_section "Uptime" (Time.seconds_to_string sysinfo.uptime);
-  print_section "Memory"
-    (Printf.sprintf "%s / %s"
-       (Byte_sizes.binary (meminfo.memory_total - meminfo.memory_available))
-       (Byte_sizes.binary meminfo.memory_total));
-  if meminfo.swap_total > 0 then
-    print_section "Swap"
-      (Printf.sprintf "%s / %s"
-         (Byte_sizes.binary (meminfo.swap_total - meminfo.swap_free))
-         (Byte_sizes.binary meminfo.swap_total));
-  print_section "Processes" (string_of_int sysinfo.processes)
+  table
+    ([
+       info_row "OS" os_release.pretty_name;
+       info_row "Arch" uname.machine;
+       info_row "Kernel" uname.release;
+       info_row "Uptime" (Time.seconds_to_string sysinfo.uptime);
+       info_row "Memory"
+         (Printf.sprintf "%s / %s"
+            (Byte_sizes.binary
+               (meminfo.memory_total - meminfo.memory_available))
+            (Byte_sizes.binary meminfo.memory_total));
+     ]
+    @ (if meminfo.swap_total > 0 then
+         [
+           info_row "Swap"
+             (Printf.sprintf "%s / %s"
+                (Byte_sizes.binary (meminfo.swap_total - meminfo.swap_free))
+                (Byte_sizes.binary meminfo.swap_total));
+         ]
+       else [])
+    @ [ info_row "Processes" (string_of_int sysinfo.processes) ])
+  |> Tui.render
+  |> print_endline
