@@ -10,9 +10,10 @@ type style = {
   height : int option;
   align_h : alignment_horizontal option;
   align_v : alignment_vertical option;
+  has_padding : bool option;
 }
 
-let style ?fg ?bg ?width ?height ?align_h ?align_v () =
-  { fg; bg; width; height; align_h; align_v }
+let style ?fg ?bg ?width ?height ?align_h ?align_v ?has_padding () =
+  { fg; bg; width; height; align_h; align_v; has_padding }
 
 let rgb r g b = { red = r; green = g; blue = b }

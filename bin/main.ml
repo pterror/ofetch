@@ -11,7 +11,7 @@ let bright_blue = Rgb (rgb 196 255 255)
 let info heading info =
   table_row
     [
-      text ~style:(style ~fg:bright_blue ~align_h:Right ()) [ heading ^ ":" ];
+      text ~style:(style ~fg:bright_blue ~align_h:Left ()) [ heading ^ ":" ];
       text [ info ];
     ]
 

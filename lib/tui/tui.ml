@@ -10,11 +10,13 @@ type size = { width : int; height : int }
 let apply_style_size style { width; height } =
   {
     width =
-      Option.value ~default:width
-        (Option.bind style (fun (s : Style.style) -> s.width));
+      (fun (s : Style.style) -> s.width)
+      |> Option.bind style
+      |> Option.value ~default:width;
     height =
-      Option.value ~default:height
-        (Option.bind style (fun (s : Style.style) -> s.height));
+      (fun (s : Style.style) -> s.height)
+      |> Option.bind style
+      |> Option.value ~default:height;
   }
 
 let try_tl list = match list with _ :: tl -> tl | _ -> []
@@ -140,10 +142,19 @@ let bg_rgb index count fg =
 let rec render element =
   match element with
   | Text { lines; style } -> (
+      let has_padding =
+        (fun s -> s.has_padding)
+        |> Option.bind style
+        |> Option.value ~default:true
+      in
       let width = (calculate_size element).width in
       let lines_rect =
         List.map
-          (fun line -> line ^ String.make (width - String.length line) ' ')
+          (fun line ->
+            line
+            ^
+            if has_padding then String.make (width - String.length line) ' '
+            else "")
           lines
       in
       match style with
