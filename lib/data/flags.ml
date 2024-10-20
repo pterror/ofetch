@@ -5,8 +5,8 @@ let transgender_flag =
     Rgb (rgb 91 206 250);
     Rgb (rgb 245 169 184);
     Rgb (rgb 255 255 255);
-    Rgb (rgb 91 206 250);
     Rgb (rgb 245 169 184);
+    Rgb (rgb 91 206 250);
   ]
 
 let nonbinary_flag =
