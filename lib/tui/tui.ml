@@ -19,6 +19,16 @@ let apply_style_size style { width; height } =
       |> Option.value ~default:height;
   }
 
+let get_gap_h style =
+  (fun (s : Style.style) -> s.gap_h)
+  |> Option.bind style
+  |> Option.value ~default:0
+
+let get_gap_v style =
+  (fun (s : Style.style) -> s.gap_v)
+  |> Option.bind style
+  |> Option.value ~default:0
+
 let try_tl list = match list with _ :: tl -> tl | _ -> []
 
 let rec calculate_size element =
@@ -33,21 +43,21 @@ let rec calculate_size element =
       }
       |> apply_style_size style
   | Row { items; style } ->
-      let gap = 1 in
+      let gap = get_gap_h style in
       let { width; height } =
         List.fold_left
           (fun { width; height } item ->
             let item_size = calculate_size item in
             {
-              width = max width item_size.width;
-              height = height + item_size.height + gap;
+              width = width + item_size.width + gap;
+              height = max height item_size.height;
             })
           { width = -gap; height = 0 }
           items
       in
       { width = max 0 width; height } |> apply_style_size style
   | Column { items; style } ->
-      let gap = 0 in
+      let gap = get_gap_v style in
       let { width; height } =
         List.fold_left
           (fun { width; height } item ->
@@ -168,26 +178,32 @@ let rec render element =
               ^ line
               ^ Ansi.Style.reset)
             lines_rect)
-  | Row { items; _ } ->
-      concat_horizontally (List.map render items)
+  | Row { items; style } ->
+      concat_horizontally ~gap:(get_gap_h style) (List.map render items)
         (List.map (fun item -> (calculate_size item).width) items)
-  | Column { items; _ } ->
-      let width = (calculate_size element).width in
-      List.flatten
-        (List.map
-           (fun item ->
-             let item_width = (calculate_size item).width in
-             let padding = String.make (width - item_width) ' '
-             and item_lines = render item in
-             if padding == "" then item_lines
-             else List.map (fun line -> line ^ padding) item_lines)
-           items)
+  | Column { items; style } ->
+      let width = (calculate_size element).width and gap = get_gap_v style in
+      List.concat_map
+        (fun (item, i) ->
+          (* FIXME: gap *)
+          let item_width = (calculate_size item).width in
+          let padding = String.make (width - item_width) ' '
+          and item_lines = render item
+          and blank_line = String.make width ' ' in
+          let gap_lines = List.init gap (fun _ -> blank_line) in
+          let lines =
+            if padding == "" then item_lines
+            else List.map (fun line -> line ^ padding) item_lines
+          in
+          if gap == 0 || i == 0 then lines else List.concat [ gap_lines; lines ])
+        (List.mapi (fun i item -> (item, i)) items)
   | Table { rows; style } ->
-      let column_widths = table_column_widths (Table { rows; style }) in
+      let column_widths = table_column_widths (Table { rows; style })
+      and gap_h = get_gap_h style in
       List.flatten
         (List.map
            (fun { items; _ } ->
-             concat_horizontally
+             concat_horizontally ~gap:gap_h
                (map2_defaults
                   (fun item width ->
                     let padding_width =
@@ -217,15 +233,17 @@ let rec render element =
            rows)
   | _ -> raise (UnknownElement ())
 
-and concat_horizontally rendered widths =
+and concat_horizontally ?gap rendered widths =
   let line, done_, _ =
     List.fold_left2
       (fun (acc, done_, first) lines width ->
-        let prefix = if first then "" else " " in
+        let prefix =
+          if first then "" else String.make (Option.value ~default:0 gap) ' '
+        in
         match lines with
         | line :: _ -> (acc ^ prefix ^ line, false, false)
         | _ -> (acc ^ prefix ^ String.make width ' ', done_, false))
       ("", true, true) rendered widths
   in
   if done_ then []
-  else line :: concat_horizontally (List.map try_tl rendered) widths
+  else line :: concat_horizontally ?gap (List.map try_tl rendered) widths
