@@ -6,7 +6,6 @@
   };
   outputs = { self, flake-utils, opam-nix, nixpkgs }@inputs:
     let
-      t = x: builtins.trace x x;
       name = "ofetch";
       forEachSystem = fn: nixpkgs.lib.genAttrs
         [ "x86_64-linux" ] # nixpkgs.lib.systems.flakeExposed
