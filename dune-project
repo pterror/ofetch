@@ -19,5 +19,5 @@
  (name ofetch)
  (synopsis "A system fetch")
  (description "A system fetch")
- (depends ocaml dune ctypes ctypes-foreign)
+ (depends ocaml dune ctypes ctypes-foreign angstrom)
  (tags ("system fetch")))

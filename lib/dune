@@ -3,4 +3,4 @@
 (library
  (name ofetch)
  (ocamlopt_flags (:standard -O2))
- (libraries str ctypes ctypes-foreign))
+ (libraries str ctypes ctypes-foreign angstrom))
